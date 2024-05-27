@@ -1,7 +1,7 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class jogo {
+public class Main {
 
 	static Scanner ler = new Scanner(System.in);
 
