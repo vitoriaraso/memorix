@@ -1,759 +1,410 @@
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Main {
-
-	static Scanner ler = new Scanner(System.in);
-
-	// CORES DOS TEXTOS
-	static String NEGRITO = "\u001b[1m";
-	static String VERMELHO = "\u001B[91m";
-	static String RESET = "\u001B[0m";
-
-	// UTILITÁRIOS
-	static boolean valido;
-	static boolean reiniciar = false;
-	static int opcao;
-
-	// VARIAVEIS DOS JOGADORES
-	static String nomeJogador1, nomeJogador2, nomeJogador3, nomeJogador4, respostaJogador1, respostaJogador2, respostaJogador3, respostaJogador4; // estáticos, para poder modificar na função
-	static int pontosJogador1 = 0, pontosJogador2 = 0, pontosJogador3 = 0, pontosJogador4 = 0;
-	static boolean jogador1Continua = true;
-	static boolean jogador2Continua = true;
-	static boolean jogador3Continua = true;
-	static boolean jogador4Continua = true;
-	static String passarPontos = "";
-	static String enter = "";
-
-	// INFOS DA RODADA
-	static String respostas[] = new String[21]; // array que armazena os itens da sequência a ser realizada
-	static int qtdplayers = 0; 
-	static int contResp = -1; // informa a quantidade de itens que existem até então para serem validados
-	static int rodada = 1;
-
-	public static void main(String[] args) {
-
-		// MENU
-		System.out.println("MEMORIX");
-		menuInicial();
-
-	}
-
-	// FUNÇÕES
-
-	// FUNÇÃO QUE EXIBE MENU INICIAL E PEDE UMA OPÇAO
-
-	public static void menuInicial() {
-		valido = false;
-
-		System.out.println("\nESCOLHA UMA OPÇÃO\n\n[1] REGRAS\n[2] JOGAR\n[3] SAIR\n");
-		System.out.print(VERMELHO + "Opção: " + RESET);
-
-		do {
-			try {
-				opcao = ler.nextInt();
-				if (opcao == 1) {
-					valido = true;
-					regras();
-				} else if (opcao == 2) {
-					valido = true;
-					jogar();
-				} else if (opcao == 3) {
-					valido = true;
-					System.out.println("\nObrigado por jogar o Memorix!");
-					System.exit(0);
-				} else {
-					System.out.println(VERMELHO + "\nOpção inválida!\nTente novamente" + RESET);
-				}
-			} catch(InputMismatchException e) { 
-				System.out.println(VERMELHO + "\nEntrada inválida! Digite um número de 1 a 3" + RESET);
-				ler.nextLine();
-			}
-		} while(!valido);
-	}
-
-	// FUNÇÃO DAS REGRAS
-
-	public static void regras() {
-		System.out.println("\n** REGRAS DO JOGO **");
-
-		System.out.println(NEGRITO + "\nObjetivo:" + RESET);
-		System.out.println("O objetivo do jogo é testar sua memória enquanto você tenta repetir sequências.");
-
-		System.out.println(NEGRITO + "\nComo jogar:" + RESET);
-		System.out.println("Assim que o jogo iniciar, o primeiro jogador precisa iniciar uma sequência com apenas uma palavra, \n"
-				+ "sem restrição de tema. Em seguida, a tela será limpa e o próximo jogador deve repetir a palavra que o jogador \n"
-				+ "anterior escreveu e adicionar outra palavra à sequência. A tela será limpa novamente e o próximo jogador deve \n"
-				+ "repetir a primeira palavra, a segunda palavra e adicionar uma terceira palavra; "
-				+ "\ne assim por diante, de forma sucessiva.\n\n"
-
-				+ "Pontuação \n"
-				+ "Acertar itens da sequência: +1 ponto por item\n"
-				+ "Herança: +1 ponto (caso o jogador perca a rodada, um ponto cai na conta do próximo jogador)\n"
-				+ "Chegar a 21 itens: +20 pontos");
-
-		redirecionamento();
-	}
-
-	// FUNÇÃO DO REDIRECIONAMENTO PARA VOLTAR AO MENU
-
-	public static void redirecionamento() {
-		valido = false;
-
-		System.out.println(VERMELHO + "\nDigite 9 para voltar ao menu" + RESET);
-		System.out.print(VERMELHO + "Opção: " + RESET);
-
-		do {
-			try {
-				opcao = ler.nextInt();
-				if (opcao == 9) {
-					valido = true;
-					menuInicial();
-				} else {
-					System.out.println(VERMELHO + "\nOpção inválida!\nTente novamente" + RESET);
-				}
-			} catch(InputMismatchException e) { 
-				System.out.println(VERMELHO + "\nEntrada inválida! Digite '9' para voltar ao menu" + RESET);
-				ler.nextLine();
-			}
-		} while(!valido);
-	}
-
-	// FUNÇÃO PARA JOGAR
-
-	public static void jogar() {
-		jogador1Continua = true;
-		jogador2Continua = true;
-		jogador3Continua = true;
-		jogador4Continua = true;
-
-		contResp = -1;
-		System.out.println("\n** JOGAR **\n" + RESET);
-
-		if(!reiniciar) {
-			pontosJogador1 = 0; 
-			pontosJogador2 = 0;
-			pontosJogador3 = 0;
-			pontosJogador4 = 0;
-			qtdPlayers();
-		}
-
-		// JOGABILIDADE EM 2
-
-		if(qtdplayers == 2) { 
-			for(rodada = 1; contResp < 20; rodada++) { 
-				jogador3Continua = false;
-				jogador4Continua = false;
-				if(jogador1Continua && jogador2Continua) {
-					telaEmBranco();
-					System.out.printf("\n## RODADA %d ##%n", rodada);
-					if(rodada == 1) {
-						System.out.println(VERMELHO + "\nDica: " + RESET + "Digite um número ou palavra para dar inicío a sequência (sem espaços)");
-					}
-					System.out.println("\nPlacar");
-					placar();
-					contResp++;
-
-					if(jogador2Continua) {
-						vezJog1();
-					}
-					if(jogador1Continua) {
-						vezJog2();
-					}
-
-					if (contResp == 20) {
-						System.out.println("\nOs jogadores fizeram uma sequência de 21 itens! Parabéns!\nJogo encerrado");
-						pontosJogador1 += 20;
-						pontosJogador2 += 20;
-						jogador1Continua = false; 
-						jogador2Continua = false;
-						System.out.println("\nPlacar final");
-						placarFinal();
-						determinarVencedor();
-						fimDeJogo();
-						break;
-					}
-
-				} else {
-					jogador1Continua = true;
-					jogador2Continua = true;
-					jogador3Continua = true;
-					jogador4Continua = true;
-					System.out.println("\nPlacar final");
-					placar();
-					determinarVencedor();
-					fimDeJogo();
-					break;
-				}
-			} 
-
-			// JOGABILIDADE EM 3
-
-		} else if(qtdplayers == 3) { 
-			for(rodada = 1; contResp < 20; rodada++) {
-				jogador4Continua = false;
-				if((jogador1Continua && jogador2Continua && jogador3Continua) || 
-						(jogador1Continua && jogador2Continua) || 
-						(jogador1Continua && jogador3Continua) || 
-						(jogador2Continua && jogador3Continua)) {
-					telaEmBranco();
-					System.out.printf("\n## RODADA %d ##%n", rodada);
-					if(rodada == 1) {
-						System.out.println(VERMELHO + "\nDica: " + RESET + "Digite um número ou palavra para dar inicío a sequência (sem espaços)");
-					}
-					System.out.println("\nPlacar");
-					placar();
-					contResp++;
-
-					if((jogador1Continua && jogador2Continua) || (jogador1Continua && jogador3Continua)) {
-						vezJog1();
-					}
-					if((jogador2Continua && jogador1Continua) || (jogador2Continua && jogador3Continua)) {
-						vezJog2();
-					} 
-					if((jogador3Continua && jogador1Continua) || (jogador3Continua && jogador2Continua)) {
-						vezJog3();
-					}
-
-					if (contResp == 20) {
-						System.out.println("\nOs jogadores fizeram uma sequência de 21 itens! Parabéns!\nJogo encerrado");
-						if(jogador1Continua) {
-							pontosJogador1 += 20;
-						}
-						if(jogador2Continua) {
-							pontosJogador2 += 20;
-						}
-						if(jogador3Continua) {
-							pontosJogador3 += 20;
-						}
-						jogador1Continua = false; 
-						jogador2Continua = false;
-						jogador3Continua = false;
-						System.out.println("\nPlacar final");
-						placarFinal();
-						determinarVencedor();
-						fimDeJogo();
-						break;
-					}
-
-				} else {
-					jogador1Continua = true;
-					jogador2Continua = true;
-					jogador3Continua = true;
-					jogador4Continua = true;
-					System.out.println("\nPlacar final");
-					placar();
-					determinarVencedor();
-					fimDeJogo();
-					break;
-				}
-
-			}
-
-			// JOGABILIDADE EM 4
-
-		} else if(qtdplayers == 4) {
-			for(rodada = 1; contResp < 20; rodada++) {
-				if((jogador1Continua && jogador2Continua && jogador3Continua && jogador4Continua) || 
-						(jogador1Continua && jogador2Continua && jogador3Continua) || 
-						(jogador1Continua && jogador3Continua && jogador4Continua) || 
-						(jogador2Continua && jogador3Continua && jogador4Continua) || 
-						(jogador1Continua && jogador2Continua && jogador4Continua) || 
-						(jogador1Continua && jogador2Continua) || 
-						(jogador1Continua && jogador3Continua) || 
-						(jogador2Continua && jogador3Continua) || 
-						(jogador1Continua && jogador4Continua) || 
-						(jogador2Continua && jogador4Continua) || 
-						(jogador3Continua && jogador4Continua)) {
-					telaEmBranco();
-					System.out.printf("\n## RODADA %d ##%n", rodada);
-					if(rodada == 1) {
-						System.out.println(VERMELHO + "\nDica: " + RESET + "Digite um número ou palavra para dar inicío a sequência (sem espaços)");
-					}
-					System.out.println("\nPlacar");
-					placar();
-					contResp++;
-
-					if((jogador1Continua && jogador2Continua && jogador3Continua) || (jogador1Continua && jogador3Continua && jogador4Continua) || (jogador1Continua && jogador2Continua && jogador4Continua) || (jogador1Continua && jogador2Continua) || (jogador1Continua && jogador3Continua) || (jogador1Continua && jogador4Continua)) {
-						vezJog1();
-					}
-					if((jogador1Continua && jogador2Continua && jogador3Continua) || (jogador2Continua && jogador3Continua && jogador4Continua) || (jogador1Continua && jogador2Continua && jogador4Continua) || (jogador1Continua && jogador2Continua) || (jogador2Continua && jogador3Continua) || (jogador2Continua && jogador4Continua)) {
-						vezJog2();
-					} 
-					if((jogador1Continua && jogador2Continua && jogador3Continua) || (jogador1Continua && jogador3Continua && jogador4Continua) || (jogador2Continua && jogador3Continua && jogador4Continua) || (jogador1Continua && jogador3Continua) || (jogador2Continua && jogador3Continua) || (jogador3Continua && jogador4Continua)) {
-						vezJog3();
-					}
-					if((jogador1Continua && jogador3Continua && jogador4Continua) || (jogador2Continua && jogador3Continua && jogador4Continua) || (jogador1Continua && jogador2Continua && jogador4Continua) || (jogador1Continua && jogador4Continua) || (jogador2Continua && jogador4Continua) || (jogador3Continua && jogador4Continua)){
-						vezJog4();
-					}
-
-					if (contResp == 20) {
-						System.out.println("Os jogadores fizeram uma sequência de 21 itens! Parabéns!\nJogo encerrado");
-						if(jogador1Continua) {
-							pontosJogador1 += 20;
-						}
-						if(jogador2Continua) {
-							pontosJogador2 += 20;
-						}
-						if(jogador3Continua) {
-							pontosJogador3 += 20;
-						}
-						if(jogador4Continua) {
-							pontosJogador4 += 20;
-						}
-						jogador1Continua = false; 
-						jogador2Continua = false;
-						jogador3Continua = false;
-						jogador4Continua = false;
-						System.out.println("\nPlacar final");
-						placarFinal();
-						determinarVencedor();
-						fimDeJogo();
-					}
-
-				} else {
-					jogador1Continua = true;
-					jogador2Continua = true;
-					jogador3Continua = true;
-					jogador4Continua = true;
-					System.out.println("\nPlacar final");
-					placar();
-					determinarVencedor();
-					fimDeJogo();
-					break;
-				}
-
-			}
-
-		}
-
-
-	}
-
-	// FUNÇÃO DA QUANTIDADE DE PLAYER E NOMEAMENTO DESTES
-
-	public static void qtdPlayers() {
-		valido = false;
-
-		System.out.println("Digite o número de jogadores que terão na rodada (mín. 2, máx. 4)");
-
-		do {
-			try {
-				int qtd = ler.nextInt();
-				if(qtd == 2) {
-					qtdplayers = 2;
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº1" + RESET);
-					nomeJogador1 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº2" + RESET);
-					nomeJogador2 = ler.next();
-					jogador3Continua = false;
-					jogador4Continua = false;
-					valido = true;
-				} else if (qtd == 3) {
-					qtdplayers = 3;
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº1" + RESET);
-					nomeJogador1 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº2" + RESET);
-					nomeJogador2 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº3" + RESET);
-					nomeJogador3 = ler.next();
-					jogador4Continua = false;
-					valido = true;
-				} else if (qtd == 4) {
-					qtdplayers = 4;
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº1" + RESET);
-					nomeJogador1 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº2" + RESET);
-					nomeJogador2 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº3" + RESET);
-					nomeJogador3 = ler.next();
-					System.out.println(NEGRITO + "\nInforme o nome do Jogador nº4" + RESET);
-					nomeJogador4 = ler.next();
-					valido = true;
-				} else if(qtd == 9) {
-					menuInicial();
-				} else {
-					System.out.println(VERMELHO + "\nNúmero de jogadores inválido!\nTente novamente ou digite '9' para voltar ao menu" + RESET);
-				}
-			} catch(InputMismatchException e) { 
-				System.out.println(VERMELHO + "\nEntrada inválida! Digite um número de 2 a 4 ou '9' para voltar ao menu" + RESET);
-				ler.nextLine();
-			}
-		} while(!valido);
-
-	}
-
-	// FUNÇÃO DE REDIRECIONAMENTO PARA QUANDO ACABA A RODADA
-
-	public static void fimDeJogo() {
-		valido = false;
-		System.out.println(VERMELHO + "\nDigite 9 para voltar ao menu ou 3 para reiniciar a partida com os mesmos jogadores" + RESET);
-
-		do {
-			try {
-				opcao = ler.nextInt();
-				if (opcao == 9) {
-					valido = true;
-					reiniciar = false;
-					telaEmBranco();
-					menuInicial();
-				} else if (opcao == 3) {
-					valido = true;
-					reiniciar = true;
-					jogar();
-				} else {
-					System.out.println(VERMELHO + "\nOpção inválida!\nTente novamente" + RESET);
-				}
-			} catch(InputMismatchException e) {
-				System.out.println(VERMELHO + "\nEntrada inválida! Digite 9 para voltar ao menu ou 3 para reiniciar a partida com os mesmos jogadores" + RESET);
-				ler.nextLine();
-			}
-		} while(!valido);
-	}
-
-	// FUNÇÃO QUE PULA A LINHA 130 VEZES
-
-	public static void telaEmBranco() {
-		for(int i = 0; i < 130; i++) {
-			System.out.println();
-		}
-	}
-
-	// JOGADAS DOS JOGADORES
-
-	public static void vezJog1() {
-		// COMEÇO JOGADOR 1
-
-		if(contResp == 0) { // primeira rodada
-			System.out.printf("%nVez de %s%n", nomeJogador1);
-			respostaJogador1 = ler.next();
-			respostas[0] = respostaJogador1; // primeira resposta será guardada na array de respostas
-		}
-		else { // demais rodadas
-			System.out.printf("%nVez de %s%n", nomeJogador1);
-			respostaJogador1 = ler.next();
-			for(int i = 0; i < contResp; i++) {
-				if(!respostaJogador1.equalsIgnoreCase(respostas[i])) { // se errar
-					if(qtdplayers == 2) { // herança de pontos 2 jogadores
-						pontosJogador2++;
-						passarPontos = nomeJogador2;
-					} else if(qtdplayers == 3) { // herança de pontos 3 jogadores
-						if(jogador2Continua) {
-							pontosJogador2++;
-							passarPontos = nomeJogador2;
-						} else {
-							pontosJogador3++;
-							passarPontos = nomeJogador3;
-						}
-					} else if(qtdplayers == 4) { // herança de pontos 4 jogadores
-						if(jogador2Continua) {
-							pontosJogador2++;
-							passarPontos = nomeJogador2;
-						} else if(jogador3Continua) {
-							pontosJogador3++;
-							passarPontos = nomeJogador3;
-						} else {
-							pontosJogador4++;
-							passarPontos = nomeJogador4;
-						}
-					}
-					System.out.printf("%n%s, você perdeu. 1 ponto vai para o próximo jogador: %s%n", nomeJogador1, passarPontos);
-					System.out.println(VERMELHO + "Dê Enter para continuar" + RESET);
-					enter = ler.nextLine();
-					enter = ler.nextLine();
-					jogador1Continua = false;
-					break;
-				} else { // se acertar
-					pontosJogador1++;
-					respostaJogador1 = ler.next();
-					if(i == contResp-1) {
-						respostas[contResp] = respostaJogador1;
-					}
-				}
-			}
-		}
-
-		// FIM JOGADOR 1
-	}
-
-	public static void vezJog2() {
-		// COMEÇO JOGADOR 2
-
-		if(contResp < 20) { // exceção para a última rodada. o contador de itens vai parar em 20 itens. se nao parar aqui, vai dar erro
-			contResp++;
-		}
-
-		if(!jogador1Continua) {
-			contResp--;
-		}
-
-		telaEmBranco();
-
-		if(rodada == 1) {
-			System.out.println(VERMELHO + "\nDica: " + RESET + "Repita a sequência iniciada pelo jogador anterior e adicione mais um item");
-			System.out.println(VERMELHO + "Separe os itens por Enter!!!" + RESET);
-		} else {
-			System.out.printf("\n## RODADA %d ##%n", rodada);
-		}
-
-		System.out.println("\nPlacar");
-		placar();
-		System.out.printf("%nVez de %s%n", nomeJogador2);
-		respostaJogador2 = ler.next();
-		for(int i = 0; i < contResp; i++) {
-			if(!respostaJogador2.equalsIgnoreCase(respostas[i])) { // se errar
-				if(qtdplayers == 3) {
-					contResp--;
-				} else if(qtdplayers == 4) {
-					contResp--;
-					contResp++;
-				}
-				if(qtdplayers == 2) { // herança de pontos
-					pontosJogador1++;
-					passarPontos = nomeJogador1;
-				} else if(qtdplayers == 3) {
-					if(jogador3Continua) {
-						pontosJogador3++;
-						passarPontos = nomeJogador3;
-					} else {
-						pontosJogador1++;
-						passarPontos = nomeJogador1;
-					}
-				} else if(qtdplayers == 4) {
-					if(jogador3Continua) {
-						pontosJogador3++;
-						passarPontos = nomeJogador3;
-					} else if(jogador4Continua) {
-						pontosJogador4++;
-						passarPontos = nomeJogador4;
-					} else {
-						pontosJogador1++;
-						passarPontos = nomeJogador1;
-					}
-				}
-				System.out.printf("%n%s, você perdeu. 1 ponto vai para o próximo jogador: %s%n", nomeJogador2, passarPontos);
-				System.out.println(VERMELHO + "Dê Enter para continuar" + RESET);
-				enter = ler.nextLine();
-				enter = ler.nextLine();
-				jogador2Continua = false;
-				break;
-			} else { // se acertar
-				pontosJogador2++;
-				respostaJogador2 = ler.next();
-				if(i == contResp-1) {
-					respostas[contResp] = respostaJogador2;
-				}
-			}
-
-		}
-
-
-
-		// FIM JOGADOR 2
-	}
-
-	public static void vezJog3() {
-		// COMEÇO JOGADOR 3
-
-		if(contResp < 20) { // exceção para a última rodada. o contador de itens vai parar em 20 itens. se nao parar aqui, vai dar erro
-			contResp++;
-		}
-
-		if(!jogador1Continua && !jogador2Continua) {
-			contResp--;
-		}
-		telaEmBranco();
-		System.out.printf("\n## RODADA %d ##%n", rodada);
-
-		System.out.println("\nPlacar");
-		placar();
-		System.out.printf("%nVez de %s%n", nomeJogador3);
-		respostaJogador3 = ler.next();
-		for(int i = 0; i < contResp; i++) {
-			if(!respostaJogador3.equalsIgnoreCase(respostas[i])) {
-				contResp--;
-				if(qtdplayers == 3) { // herança de pontos
-					if(jogador1Continua) {
-						pontosJogador1++;
-						passarPontos = nomeJogador1;
-					} else {
-						pontosJogador2++;
-						passarPontos = nomeJogador2;
-					}
-				} else if(qtdplayers == 4) {
-					if(jogador4Continua) {
-						pontosJogador4++;
-						passarPontos = nomeJogador4;
-					} else if(jogador1Continua) {
-						pontosJogador1++;
-						passarPontos = nomeJogador1;
-					} else {
-						pontosJogador2++;
-						passarPontos = nomeJogador2;
-					}
-				}
-				System.out.printf("%n%s, você perdeu. 1 ponto vai para o próximo jogador: %s%n", nomeJogador3, passarPontos);
-				System.out.println(VERMELHO + "Dê Enter para continuar" + RESET);
-				enter = ler.nextLine();
-				enter = ler.nextLine();
-				jogador3Continua = false;
-				break;
-			} else {
-				pontosJogador3++;
-				respostaJogador3 = ler.next();
-				if(i == contResp-1) {
-					respostas[contResp] = respostaJogador3;
-				}
-			}
-		}
-
-		// FIM JOGADOR 3
-	}
-
-	public static void vezJog4() {
-		// COMEÇO JOGADOR 4
-
-		if(contResp < 20) { // exceção para a última rodada. o contador de itens vai parar em 20 itens. se nao parar aqui, vai dar erro
-			contResp++;
-		}
-		telaEmBranco();
-		System.out.printf("\n## RODADA %d ##%n", rodada);
-
-		System.out.println("\nPlacar");
-		placar();
-		System.out.printf("%nVez de %s%n", nomeJogador4);
-		respostaJogador4 = ler.next();
-		for(int i = 0; i < contResp; i++) {
-			if(!respostaJogador4.equalsIgnoreCase(respostas[i])) {
-				contResp--;
-				if(qtdplayers == 4) { // herança de pontos
-					if(jogador1Continua) {
-						pontosJogador1++;
-						passarPontos = nomeJogador1;
-					} else if(jogador2Continua) {
-						pontosJogador2++;
-						passarPontos = nomeJogador2;
-					} else if(jogador3Continua) {
-						pontosJogador3++;
-						passarPontos = nomeJogador3;
-					}
-				}
-				System.out.printf("%n%s, você perdeu. Um ponto vai para o próximo jogador: %s%n", nomeJogador4, passarPontos);
-				System.out.println(VERMELHO + "Dê Enter para continuar" + RESET);
-				enter = ler.nextLine();
-				enter = ler.nextLine();
-				jogador4Continua = false;
-				break;
-			} else {
-				pontosJogador4++;
-				respostaJogador4 = ler.next();
-				if(i == contResp-1) {
-					respostas[contResp] = respostaJogador4;
-				}
-			}
-		}
-
-		// FIM JOGADOR 4
-	}
-
-	public static void placar() {
-		if(jogador1Continua) {
-			System.out.printf("%s: %d%n", nomeJogador1, pontosJogador1);
-		}
-		if(jogador2Continua) {
-			System.out.printf("%s: %d%n", nomeJogador2, pontosJogador2);
-		}
-		if(qtdplayers == 3) {
-			if(jogador3Continua) {
-				System.out.printf("%s: %d%n", nomeJogador3, pontosJogador3);
-			}
-		} else if(qtdplayers == 4) {
-			if(jogador3Continua) {
-				System.out.printf("%s: %d%n", nomeJogador3, pontosJogador3);
-			}
-			if(jogador4Continua) {
-				System.out.printf("%s: %d%n", nomeJogador4, pontosJogador4);
-			}
-		}
-
-	}
-
-	public static void placarFinal() {
-
-		System.out.printf("%s: %d%n", nomeJogador1, pontosJogador1);
-		System.out.printf("%s: %d%n", nomeJogador2, pontosJogador2);
-		if(qtdplayers == 3) {
-			System.out.printf("%s: %d%n", nomeJogador3, pontosJogador3);
-		} else if(qtdplayers == 4) {
-			System.out.printf("%s: %d%n", nomeJogador3, pontosJogador3);
-			System.out.printf("%s: %d%n", nomeJogador4, pontosJogador4);
-		}
-	}
-
-	// FUNÇÃO CALCULA O VENCEDOR DA PARTIDA
-
-	public static boolean verificarEmpate(int pontos1, int pontos2, int pontos3, int pontos4) {
-		boolean empate = false;
-
-		if(qtdplayers == 2) {
-			if(pontosJogador1 == pontosJogador2) {
-				empate = true;
-			}
-		} else if(qtdplayers == 3) {
-			if(pontosJogador1 == pontosJogador2 ||
-					pontosJogador1 == pontosJogador3 || 
-					pontosJogador2 == pontosJogador3) {
-				empate = true;
-			}
-		} else {
-			if(pontosJogador1 == pontosJogador2 ||
-					pontosJogador1 == pontosJogador3 || 
-					pontosJogador1 == pontosJogador4 ||
-					pontosJogador2 == pontosJogador3 ||
-					pontosJogador2 == pontosJogador4 ||
-					pontosJogador3 == pontosJogador4)
-				empate = true;
-		}
-
-		return empate;
-	}	
-
-	public static void determinarVencedor() {
-		boolean empate = verificarEmpate(pontosJogador1, pontosJogador2, pontosJogador3, pontosJogador4);
-			
-			if (qtdplayers == 2) {
-				if (pontosJogador1 > pontosJogador2) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador1);
-				} else if (pontosJogador2 > pontosJogador1) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador2);
-				} else if (empate) {
-					System.out.println("\nHouve um empate!");
-				}
-			} else if (qtdplayers == 3) {
-				if (pontosJogador1 > pontosJogador2 && pontosJogador1 > pontosJogador3) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador1);
-				} else if (pontosJogador2 > pontosJogador1 && pontosJogador2 > pontosJogador3) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador2);
-				} else if (pontosJogador3 > pontosJogador1 && pontosJogador3 > pontosJogador2) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador3);
-				} else if (empate) {
-					System.out.println("\nHouve um empate!");
-				}
-			} else if (qtdplayers == 4) {
-				if (pontosJogador1 > pontosJogador2 && pontosJogador1 > pontosJogador3 && pontosJogador1 > pontosJogador4) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador1);
-				} else if (pontosJogador2 > pontosJogador1 && pontosJogador2 > pontosJogador3 && pontosJogador2 > pontosJogador4) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador2);
-				} else if (pontosJogador3 > pontosJogador1 && pontosJogador3 > pontosJogador2 && pontosJogador3 > pontosJogador4) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador3);
-				} else if (pontosJogador4 > pontosJogador1 && pontosJogador4 > pontosJogador2 && pontosJogador4 > pontosJogador3) {
-					System.out.printf("%n%s é o vencedor da partida!%n", nomeJogador4);
-				} else if (empate){
-					System.out.println("\nHouve um empate!");
-				}
-			}
-		
-		
-	}
-
+    // Constantes
+    private static final int MAX_SEQUENCIA = 21;
+    private static final int MIN_JOGADORES = 2;
+    private static final int MAX_JOGADORES = 4;
+    private static final int BONUS_SEQUENCIA_COMPLETA = 20;
+    private static final int CODIGO_VOLTAR = 9;
+    private static final int CODIGO_REINICIAR = 3;
+    
+    // Formatação
+    private static final String NEGRITO = "\u001b[1m";
+    private static final String VERMELHO = "\u001B[91m";
+    private static final String RESET = "\u001B[0m";
+    
+    // Entrada de dados
+    private static final Scanner scanner = new Scanner(System.in);
+    
+    // Estado do jogo
+    private static boolean reiniciar = false;
+    private static String[] sequencia = new String[MAX_SEQUENCIA];
+    private static int contadorSequencia = -1;
+    private static int rodada = 1;
+    
+    // Modelo de jogadores
+    private static class Jogador {
+        String nome;
+        int pontos;
+        boolean ativo;
+        String ultimaResposta;
+        
+        Jogador(String nome) {
+            this.nome = nome;
+            this.pontos = 0;
+            this.ativo = true;
+        }
+        
+        void reiniciar() {
+            this.pontos = 0;
+            this.ativo = true;
+        }
+    }
+    
+    private static List<Jogador> jogadores = new ArrayList<>();
+
+    public static void main(String[] args) {
+        exibirLogotipo();
+        menuInicial();
+    }
+    
+    private static void exibirLogotipo() {
+        System.out.println(NEGRITO + "\n" + 
+                "  ███╗   ███╗███████╗███╗   ███╗ ██████╗ ██████╗ ██╗██╗  ██╗\n" +
+                "  ████╗ ████║██╔════╝████╗ ████║██╔═══██╗██╔══██╗██║╚██╗██╔╝\n" +
+                "  ██╔████╔██║█████╗  ██╔████╔██║██║   ██║██████╔╝██║ ╚███╔╝ \n" +
+                "  ██║╚██╔╝██║██╔══╝  ██║╚██╔╝██║██║   ██║██╔══██╗██║ ██╔██╗ \n" +
+                "  ██║ ╚═╝ ██║███████╗██║ ╚═╝ ██║╚██████╔╝██║  ██║██║██╔╝ ██╗\n" +
+                "  ╚═╝     ╚═╝╚══════╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝\n" + RESET);
+        
+        System.out.println(VERMELHO + "        O DESAFIO DEFINITIVO PARA SUA MEMÓRIA" + RESET);
+        System.out.println(NEGRITO + "\n        Versão 1.0 | Desenvolvido em Java" + RESET);
+        System.out.println("\n═════════════════════════════════════════════════════════════");
+    }
+    
+    // ===== MENU E NAVEGAÇÃO =====
+    
+    private static void menuInicial() {
+        System.out.println("\n" + NEGRITO + "MENU PRINCIPAL" + RESET);
+        System.out.println("\nEscolha uma opção:");
+        System.out.println(NEGRITO + " [1]" + RESET + " Regras do jogo");
+        System.out.println(NEGRITO + " [2]" + RESET + " Iniciar partida");
+        System.out.println(NEGRITO + " [3]" + RESET + " Sair");
+        System.out.print(VERMELHO + "\nOpção: " + RESET);
+        
+        int opcao = lerOpcao(1, 3);
+        switch (opcao) {
+            case 1: regras(); break;
+            case 2: jogar(); break;
+            case 3: 
+                System.out.println("\nObrigado por jogar o Memorix! Até a próxima.");
+                System.exit(0);
+        }
+    }
+    
+    private static void regras() {
+        System.out.println("\n" + NEGRITO + "** REGRAS DO MEMORIX **" + RESET);
+        
+        System.out.println(NEGRITO + "\nObjetivo do Jogo:" + RESET);
+        System.out.println("O Memorix é um jogo que desafia sua capacidade de memorização em uma dinâmica progressiva e competitiva.");
+        
+        System.out.println(NEGRITO + "\nMecânica de Jogo:" + RESET);
+        System.out.println("• Rodadas: O jogo avança em rodadas sequenciais onde cada jogador terá sua vez.");
+        System.out.println("• Primeira Rodada: O primeiro jogador inicia com uma única palavra ou número de sua escolha.");
+        System.out.println("• Rodadas Subsequentes: Cada jogador seguinte deve:");
+        System.out.println("  1. Repetir corretamente toda a sequência anterior na ordem exata");
+        System.out.println("  2. Adicionar um novo item ao final da sequência");
+        System.out.println("• A tela é limpa entre as jogadas para aumentar o desafio de memorização");
+        System.out.println("• Separação: Os itens da sequência devem ser inseridos um por vez, separados por Enter");
+        
+        System.out.println(NEGRITO + "\nSistema de Pontuação:" + RESET);
+        System.out.println("• +1 ponto para cada item da sequência repetido corretamente");
+        System.out.println("• +1 ponto de bônus (herança) quando um jogador erra, beneficiando o próximo jogador");
+        System.out.println("• +20 pontos de bônus para todos os jogadores ativos que completarem uma sequência de 21 itens");
+        
+        System.out.println(NEGRITO + "\nElimination:" + RESET);
+        System.out.println("• Um jogador é eliminado da rodada quando erra qualquer item da sequência");
+        System.out.println("• O jogo continua enquanto houver pelo menos 2 jogadores ativos");
+        System.out.println("• A partida termina quando apenas um jogador permanece ou a sequência atinge 21 itens");
+        
+        System.out.println(NEGRITO + "\nVitória:" + RESET);
+        System.out.println("• Vencedor: O jogador com mais pontos ao final da partida");
+        System.out.println("• Empate: Caso dois ou mais jogadores terminem com a mesma pontuação");
+        
+        redirecionarParaMenu();
+    }
+    
+    private static void redirecionarParaMenu() {
+        System.out.println(VERMELHO + "\nDigite 9 para voltar ao menu" + RESET);
+        System.out.print(VERMELHO + "Opção: " + RESET);
+        
+        int opcao = lerOpcao(CODIGO_VOLTAR, CODIGO_VOLTAR);
+        if (opcao == CODIGO_VOLTAR) {
+            menuInicial();
+        }
+    }
+    
+    private static void fimDeJogo() {
+        System.out.println(NEGRITO + "\n═════════════════════════════════════════════" + RESET);
+        System.out.println(VERMELHO + "Digite 9 para voltar ao menu ou 3 para jogar novamente com os mesmos jogadores" + RESET);
+        
+        int opcao = lerOpcao(Arrays.asList(CODIGO_VOLTAR, CODIGO_REINICIAR));
+        if (opcao == CODIGO_VOLTAR) {
+            reiniciar = false;
+            limparTela();
+            menuInicial();
+        } else if (opcao == CODIGO_REINICIAR) {
+            reiniciar = true;
+            jogar();
+        }
+    }
+    
+    // ===== CONFIGURAÇÃO DO JOGO =====
+    
+    private static void inicializarJogo() {
+        contadorSequencia = -1;
+        rodada = 1;
+        
+        for (Jogador jogador : jogadores) {
+            jogador.ativo = true;
+        }
+    }
+    
+    private static void configJogadores() {
+        jogadores.clear();
+        
+        System.out.println("Digite o número de jogadores que terão na rodada (mín. " + 
+                          MIN_JOGADORES + ", máx. " + MAX_JOGADORES + ")");
+        
+        int numJogadores = lerOpcao(MIN_JOGADORES, MAX_JOGADORES);
+        
+        for (int i = 1; i <= numJogadores; i++) {
+            System.out.println(NEGRITO + "\nInforme o nome do Jogador nº" + i + RESET);
+            jogadores.add(new Jogador(scanner.next()));
+        }
+    }
+    
+    // ===== PRINCIPAL LÓGICA DO JOGO =====
+    
+    private static void jogar() {
+        if (!reiniciar) {
+            configJogadores();
+        } else {
+            for (Jogador jogador : jogadores) {
+                jogador.reiniciar();
+            }
+        }
+        
+        inicializarJogo();
+        System.out.println("\n** JOGAR **\n" + RESET);
+        
+        while (contadorSequencia < MAX_SEQUENCIA - 1 && jogadoresAtivos() >= 2) {
+            limparTela();
+            System.out.printf("\n## RODADA %d ##%n", rodada);
+            
+            if (rodada == 1) {
+                System.out.println(VERMELHO + "\nDica: " + RESET + 
+                                 "Digite um número ou palavra para dar inicío a sequência (sem espaços)");
+            }
+            
+            System.out.println("\nPlacar");
+            exibirPlacar(false);
+            contadorSequencia++;
+            
+            // Jogada de cada jogador
+            for (int i = 0; i < jogadores.size(); i++) {
+                Jogador jogador = jogadores.get(i);
+                if (jogador.ativo) {
+                    processarJogada(jogador, i);
+                }
+            }
+            
+            // Verificar se completou a sequência
+            if (contadorSequencia == MAX_SEQUENCIA - 1) {
+                System.out.println("\nOs jogadores fizeram uma sequência de " + MAX_SEQUENCIA + 
+                                 " itens! Parabéns!\nJogo encerrado");
+                
+                for (Jogador jogador : jogadores) {
+                    if (jogador.ativo) {
+                        jogador.pontos += BONUS_SEQUENCIA_COMPLETA;
+                    }
+                }
+                
+                System.out.println("\nPlacar final");
+                exibirPlacar(true);
+                determinarVencedor();
+                break;
+            }
+            
+            rodada++;
+        }
+        
+        // Se não completou a sequência
+        if (contadorSequencia < MAX_SEQUENCIA - 1) {
+            System.out.println("\nPlacar final");
+            exibirPlacar(true);
+            determinarVencedor();
+        }
+        
+        fimDeJogo();
+    }
+    
+    private static void processarJogada(Jogador jogador, int indiceJogador) {
+        if (contadorSequencia == 0 && rodada == 1) {
+            // Primeira jogada do jogo
+            System.out.printf("%n" + NEGRITO + "Vez de %s" + RESET + "%n", jogador.nome);
+            System.out.println("Digite uma palavra ou número para iniciar a sequência:");
+            jogador.ultimaResposta = scanner.next();
+            sequencia[0] = jogador.ultimaResposta;
+            return;
+        }
+        
+        // Jogadas subsequentes
+        limparTela();
+        
+        if (rodada == 1 && indiceJogador > 0) {
+            System.out.println(NEGRITO + "\n## RODADA " + rodada + " ##" + RESET);
+            System.out.println(VERMELHO + "\nInstruções: " + RESET + 
+                             "Repita a sequência iniciada pelo jogador anterior e adicione um novo item");
+            System.out.println(VERMELHO + "Importante: " + RESET + "Separe os itens digitando ENTER após cada um");
+        } else {
+            System.out.println(NEGRITO + "\n## RODADA " + rodada + " ##" + RESET);
+        }
+        
+        System.out.println("\n" + NEGRITO + "PLACAR ATUAL" + RESET);
+        exibirPlacar(false);
+        System.out.printf("%n" + NEGRITO + "Vez de %s" + RESET + "%n", jogador.nome);
+        System.out.println("Digite cada item da sequência, pressionando ENTER após cada um:");
+        
+        // Loop para verificar cada palavra da sequência
+        String resposta = scanner.next();
+        for (int i = 0; i < contadorSequencia; i++) {
+            if (!resposta.equalsIgnoreCase(sequencia[i])) {
+                // Errou a sequência
+                Jogador proximoJogador = obterProximoJogadorAtivo(indiceJogador);
+                proximoJogador.pontos++;
+                
+                System.out.println(VERMELHO + "\n✖ ERRO NA SEQUÊNCIA!" + RESET);
+                System.out.printf("%s, você errou no item %d. O termo correto era: %s%n", 
+                                jogador.nome, i+1, sequencia[i]);
+                System.out.printf("1 ponto de bônus foi transferido para %s%n", 
+                                proximoJogador.nome);
+                System.out.println(VERMELHO + "\nPressione ENTER para continuar" + RESET);
+                scanner.nextLine();
+                scanner.nextLine();
+                
+                jogador.ativo = false;
+                return;
+            }
+            
+            // Acertou, acrescenta ponto e pega próxima resposta
+            jogador.pontos++;
+            
+            // Se não for o último item da sequência, mostra feedback positivo
+            if (i < contadorSequencia - 1) {
+                System.out.println("✓ Correto! Continue...");
+                resposta = scanner.next();
+            }
+            // Se chegou no final da sequência existente, adiciona nova palavra
+            else {
+                System.out.println("✓ Sequência correta! Agora adicione um novo item:");
+                resposta = scanner.next();
+                sequencia[contadorSequencia] = resposta;
+                System.out.println("Item adicionado com sucesso!");
+            }
+        }
+    }
+    
+    // ===== UTILITÁRIOS =====
+    
+    private static int jogadoresAtivos() {
+        int ativos = 0;
+        for (Jogador jogador : jogadores) {
+            if (jogador.ativo) ativos++;
+        }
+        return ativos;
+    }
+    
+    private static Jogador obterProximoJogadorAtivo(int indiceAtual) {
+        int proximo = indiceAtual;
+        do {
+            proximo = (proximo + 1) % jogadores.size();
+        } while (!jogadores.get(proximo).ativo && proximo != indiceAtual);
+        
+        return jogadores.get(proximo);
+    }
+    
+    private static void exibirPlacar(boolean final_) {
+        if (final_) {
+            System.out.println(NEGRITO + "\n╔══════════════════════════╗");
+            System.out.println("║     PLACAR FINAL          ║");
+            System.out.println("╚══════════════════════════╝" + RESET);
+            
+            for (Jogador jogador : jogadores) {
+                System.out.printf("  %s: %d pontos%n", jogador.nome, jogador.pontos);
+            }
+        } else {
+            for (Jogador jogador : jogadores) {
+                if (jogador.ativo) {
+                    System.out.printf("  %s: %d pontos%n", jogador.nome, jogador.pontos);
+                }
+            }
+        }
+    }
+    
+    private static void determinarVencedor() {
+        if (verificarEmpate()) {
+            System.out.println(NEGRITO + "\n╔══════════════════════════╗");
+            System.out.println("║        EMPATE!           ║");
+            System.out.println("╚══════════════════════════╝" + RESET);
+            System.out.println("Vários jogadores alcançaram a mesma pontuação!");
+            return;
+        }
+        
+        Jogador vencedor = jogadores.get(0);
+        for (Jogador jogador : jogadores) {
+            if (jogador.pontos > vencedor.pontos) {
+                vencedor = jogador;
+            }
+        }
+        
+        System.out.println(NEGRITO + "\n╔══════════════════════════╗");
+        System.out.println("║      VENCEDOR(A)!         ║");
+        System.out.println("╚══════════════════════════╝" + RESET);
+        System.out.printf("  %s é o grande vencedor com %d pontos!%n", vencedor.nome, vencedor.pontos);
+    }
+    
+    private static boolean verificarEmpate() {
+        for (int i = 0; i < jogadores.size() - 1; i++) {
+            for (int j = i + 1; j < jogadores.size(); j++) {
+                if (jogadores.get(i).pontos == jogadores.get(j).pontos) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private static void limparTela() {
+        for (int i = 0; i < 130; i++) {
+            System.out.println();
+        }
+    }
+    
+    private static int lerOpcao(int min, int max) {
+        while (true) {
+            try {
+                int opcao = scanner.nextInt();
+                if (opcao >= min && opcao <= max) {
+                    return opcao;
+                } else {
+                    System.out.println(VERMELHO + "\nOpção inválida!\nTente novamente" + RESET);
+                }
+            } catch (InputMismatchException e) {
+                System.out.println(VERMELHO + "\nEntrada inválida! Digite um número de " + min + " a " + max + RESET);
+                scanner.nextLine();
+            }
+        }
+    }
+    
+    private static int lerOpcao(List<Integer> opcoesValidas) {
+        while (true) {
+            try {
+                int opcao = scanner.nextInt();
+                if (opcoesValidas.contains(opcao)) {
+                    return opcao;
+                } else {
+                    System.out.println(VERMELHO + "\nOpção inválida!\nTente novamente" + RESET);
+                }
+            } catch (InputMismatchException e) {
+                System.out.println(VERMELHO + "\nEntrada inválida! Digite uma das opções válidas" + RESET);
+                scanner.nextLine();
+            }
+        }
+    }
 }
