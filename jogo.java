@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Main {
+public class Jogo {
     // Constantes
     private static final int MAX_SEQUENCIA = 21;
     private static final int MIN_JOGADORES = 2;
@@ -96,9 +96,14 @@ public class Main {
         System.out.println(NEGRITO + "\nMecânica de Jogo:" + RESET);
         System.out.println("• Rodadas: O jogo avança em rodadas sequenciais onde cada jogador terá sua vez.");
         System.out.println("• Primeira Rodada: O primeiro jogador inicia com uma única palavra ou número de sua escolha.");
-        System.out.println("• Rodadas Subsequentes: Cada jogador seguinte deve:");
-        System.out.println("  1. Repetir corretamente toda a sequência anterior na ordem exata");
-        System.out.println("  2. Adicionar um novo item ao final da sequência");
+        System.out.println("• Segunda Rodada: O segundo jogador deve repetir a palavra do primeiro jogador e adicionar uma nova.");
+        System.out.println("• Terceira Rodada: O próximo jogador deve repetir as duas palavras anteriores e adicionar mais uma.");
+        System.out.println("• Rodadas Subsequentes: A sequência vai ficando cada vez mais longa e o desafio maior!");
+        System.out.println("• Exemplo de sequência:");
+        System.out.println("   - Jogador 1: \"Carro\"");
+        System.out.println("   - Jogador 2: \"Carro, Casa\"");
+        System.out.println("   - Jogador 3: \"Carro, Casa, Montanha\"");
+        System.out.println("   - E assim por diante...");
         System.out.println("• A tela é limpa entre as jogadas para aumentar o desafio de memorização");
         System.out.println("• Separação: Os itens da sequência devem ser inseridos um por vez, separados por Enter");
         
@@ -107,7 +112,7 @@ public class Main {
         System.out.println("• +1 ponto de bônus (herança) quando um jogador erra, beneficiando o próximo jogador");
         System.out.println("• +20 pontos de bônus para todos os jogadores ativos que completarem uma sequência de 21 itens");
         
-        System.out.println(NEGRITO + "\nElimination:" + RESET);
+        System.out.println(NEGRITO + "\nEliminação:" + RESET);
         System.out.println("• Um jogador é eliminado da rodada quando erra qualquer item da sequência");
         System.out.println("• O jogo continua enquanto houver pelo menos 2 jogadores ativos");
         System.out.println("• A partida termina quando apenas um jogador permanece ou a sequência atinge 21 itens");
@@ -181,32 +186,69 @@ public class Main {
         }
         
         inicializarJogo();
-        System.out.println("\n** JOGAR **\n" + RESET);
+        System.out.println("\n" + NEGRITO + "** NOVO JOGO INICIADO **" + RESET);
+        System.out.println("\n" + NEGRITO + "MECÂNICA DO JOGO:" + RESET);
+        System.out.println("1. Primeiro jogador informa uma palavra ou número");
+        System.out.println("2. Próximos jogadores repetem a sequência anterior + um novo item");
+        System.out.println("3. A cada rodada, a sequência fica mais longa e o desafio maior");
+        System.out.println("4. Quem errar qualquer item da sequência é eliminado");
+        System.out.println("5. Jogue até restar apenas 1 jogador ou completar 21 itens");
+        
+        // Fase de inicialização: apenas o primeiro jogador define a primeira palavra
+        limparTela();
+        System.out.println(NEGRITO + "\n## FASE INICIAL ##" + RESET);
+        System.out.println(VERMELHO + "\nInstruções: " + RESET + 
+                         "O primeiro jogador deve informar uma palavra ou número para iniciar a sequência");
+        System.out.println("\n" + NEGRITO + "PLACAR INICIAL" + RESET);
+        exibirPlacar(false);
+        
+        // Primeira palavra definida apenas pelo jogador 1
+        Jogador primeiroJogador = jogadores.get(0);
+        System.out.printf("%n" + NEGRITO + "Vez de %s" + RESET + "%n", primeiroJogador.nome);
+        System.out.println("Digite uma palavra ou número para iniciar a sequência (sem espaços):");
+        String primeiraPalavra = scanner.next();
+        sequencia[0] = primeiraPalavra;
+        contadorSequencia = 0;
+        
+        System.out.println("✓ Sequência iniciada com: " + primeiraPalavra);
+        System.out.println(VERMELHO + "\nPressione ENTER para continuar com o próximo jogador" + RESET);
+        scanner.nextLine();
+        scanner.nextLine();
+        
+        // Começa o jogo a partir do segundo jogador
+        int jogadorAtual = 1;  // Começa pelo jogador 2 (índice 1)
+        rodada = 1;            // Primeira rodada real
         
         while (contadorSequencia < MAX_SEQUENCIA - 1 && jogadoresAtivos() >= 2) {
             limparTela();
-            System.out.printf("\n## RODADA %d ##%n", rodada);
+            System.out.printf("\n" + NEGRITO + "## RODADA %d ##" + RESET + "%n", rodada);
             
-            if (rodada == 1) {
-                System.out.println(VERMELHO + "\nDica: " + RESET + 
-                                 "Digite um número ou palavra para dar inicío a sequência (sem espaços)");
-            }
+            System.out.println(VERMELHO + "\nLembrando: " + RESET + 
+                             "A sequência atual possui " + (contadorSequencia + 1) + " item(s)");
+            System.out.println("Cada jogador deve repetir TODOS esses itens na ordem correta e adicionar um novo.");
             
-            System.out.println("\nPlacar");
+            System.out.println("\n" + NEGRITO + "PLACAR ATUAL" + RESET);
             exibirPlacar(false);
-            contadorSequencia++;
             
-            // Jogada de cada jogador
-            for (int i = 0; i < jogadores.size(); i++) {
-                Jogador jogador = jogadores.get(i);
+            // Joga um jogador por vez, na ordem, começando do segundo jogador
+            int jogadasNaRodada = 0;
+            while (jogadasNaRodada < jogadores.size() && jogadoresAtivos() >= 2) {
+                Jogador jogador = jogadores.get(jogadorAtual);
                 if (jogador.ativo) {
-                    processarJogada(jogador, i);
+                    processarJogada(jogador, jogadorAtual);
+                    jogadasNaRodada++;
                 }
+                
+                // Avança para o próximo jogador, voltando ao início quando necessário
+                jogadorAtual = (jogadorAtual + 1) % jogadores.size();
             }
             
             // Verificar se completou a sequência
             if (contadorSequencia == MAX_SEQUENCIA - 1) {
-                System.out.println("\nOs jogadores fizeram uma sequência de " + MAX_SEQUENCIA + 
+                System.out.println(NEGRITO + "\n╔═════════════════════════════════╗");
+                System.out.println("║    SEQUÊNCIA COMPLETA!         ║");
+                System.out.println("╚═════════════════════════════════╝" + RESET);
+                System.out.println("Os jogadores completaram uma sequência de " + MAX_SEQUENCIA + 
                                  " itens! Parabéns!\nJogo encerrado");
                 
                 for (Jogador jogador : jogadores) {
@@ -226,6 +268,12 @@ public class Main {
         
         // Se não completou a sequência
         if (contadorSequencia < MAX_SEQUENCIA - 1) {
+            if (jogadoresAtivos() < 2) {
+                System.out.println(NEGRITO + "\n╔═════════════════════════════════╗");
+                System.out.println("║    FIM DE JOGO!                ║");
+                System.out.println("╚═════════════════════════════════╝" + RESET);
+                System.out.println("Apenas um jogador restou na partida.");
+            }
             System.out.println("\nPlacar final");
             exibirPlacar(true);
             determinarVencedor();
@@ -235,35 +283,37 @@ public class Main {
     }
     
     private static void processarJogada(Jogador jogador, int indiceJogador) {
-        if (contadorSequencia == 0 && rodada == 1) {
-            // Primeira jogada do jogo
-            System.out.printf("%n" + NEGRITO + "Vez de %s" + RESET + "%n", jogador.nome);
-            System.out.println("Digite uma palavra ou número para iniciar a sequência:");
-            jogador.ultimaResposta = scanner.next();
-            sequencia[0] = jogador.ultimaResposta;
-            return;
-        }
-        
-        // Jogadas subsequentes
         limparTela();
         
-        if (rodada == 1 && indiceJogador > 0) {
+        if (rodada == 1 && indiceJogador == 1) {
+            // Primeiro jogador da primeira rodada (segundo jogador do jogo)
             System.out.println(NEGRITO + "\n## RODADA " + rodada + " ##" + RESET);
             System.out.println(VERMELHO + "\nInstruções: " + RESET + 
-                             "Repita a sequência iniciada pelo jogador anterior e adicione um novo item");
-            System.out.println(VERMELHO + "Importante: " + RESET + "Separe os itens digitando ENTER após cada um");
+                             "Você deve repetir a palavra do primeiro jogador e adicionar uma nova palavra");
+            System.out.println(VERMELHO + "Importante: " + RESET + "Digite um item por vez, pressionando ENTER após cada um");
         } else {
             System.out.println(NEGRITO + "\n## RODADA " + rodada + " ##" + RESET);
+            System.out.println(VERMELHO + "\nInstruções: " + RESET + 
+                            "Você deve repetir TODAS as " + (contadorSequencia + 1) + 
+                            " palavras anteriores na ordem correta e adicionar uma nova");
+            System.out.println(VERMELHO + "Importante: " + RESET + "Digite um item por vez, pressionando ENTER após cada um");
         }
         
         System.out.println("\n" + NEGRITO + "PLACAR ATUAL" + RESET);
         exibirPlacar(false);
         System.out.printf("%n" + NEGRITO + "Vez de %s" + RESET + "%n", jogador.nome);
+        
+        // Exibe a contagem de itens a serem repetidos
+        System.out.println("Você precisa repetir " + (contadorSequencia + 1) + 
+                         " item(s) e adicionar 1 novo item no final da sequência.");
+        
         System.out.println("Digite cada item da sequência, pressionando ENTER após cada um:");
         
         // Loop para verificar cada palavra da sequência
         String resposta = scanner.next();
-        for (int i = 0; i < contadorSequencia; i++) {
+        
+        // Verificação das palavras da sequência existente
+        for (int i = 0; i <= contadorSequencia; i++) {
             if (!resposta.equalsIgnoreCase(sequencia[i])) {
                 // Errou a sequência
                 Jogador proximoJogador = obterProximoJogadorAtivo(indiceJogador);
@@ -282,22 +332,27 @@ public class Main {
                 return;
             }
             
-            // Acertou, acrescenta ponto e pega próxima resposta
+            // Acertou, acrescenta ponto
             jogador.pontos++;
             
-            // Se não for o último item da sequência, mostra feedback positivo
-            if (i < contadorSequencia - 1) {
-                System.out.println("✓ Correto! Continue...");
+            // Se não for o último item da sequência, mostra feedback positivo e pede o próximo
+            if (i < contadorSequencia) {
+                System.out.println("✓ Correto! Continue com o próximo item da sequência...");
                 resposta = scanner.next();
-            }
-            // Se chegou no final da sequência existente, adiciona nova palavra
-            else {
-                System.out.println("✓ Sequência correta! Agora adicione um novo item:");
-                resposta = scanner.next();
-                sequencia[contadorSequencia] = resposta;
-                System.out.println("Item adicionado com sucesso!");
             }
         }
+        
+        // Se chegou aqui, repetiu toda a sequência corretamente, agora adiciona nova palavra
+        System.out.println("✓ Sequência completa! Agora adicione um novo item ao final:");
+        resposta = scanner.next();
+        contadorSequencia++;
+        sequencia[contadorSequencia] = resposta;
+        System.out.println("Item adicionado com sucesso! Sequência atualizada para " + (contadorSequencia + 1) + " itens.");
+        
+        // Pausa para o jogador ver o resultado
+        System.out.println(VERMELHO + "\nPressione ENTER para continuar" + RESET);
+        scanner.nextLine();
+        scanner.nextLine();
     }
     
     // ===== UTILITÁRIOS =====

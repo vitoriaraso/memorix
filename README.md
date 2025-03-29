@@ -24,9 +24,19 @@ O objetivo é acumular o maior número de pontos através da memorização e rep
 
 ### Mecânica Principal
 1. **Primeira Rodada**: O primeiro jogador inicia com uma única palavra ou número.
-2. **Rodadas Subsequentes**: Cada jogador deve:
-   - Repetir toda a sequência anterior na ordem exata
+2. **Segunda Rodada**: O segundo jogador deve repetir a palavra do primeiro jogador e adicionar uma nova palavra.
+3. **Terceira Rodada**: O próximo jogador deve repetir as duas palavras anteriores (na ordem correta) e adicionar mais uma.
+4. **Rodadas Subsequentes**: Cada jogador seguinte deve:
+   - Repetir toda a sequência anterior (que vai ficando cada vez mais longa)
    - Adicionar um novo item ao final da sequência
+
+Por exemplo:
+- Jogador 1: "Carro"
+- Jogador 2: "Carro, Casa"
+- Jogador 3: "Carro, Casa, Montanha"
+- Jogador 4: "Carro, Casa, Montanha, Árvore"
+- Jogador 1: "Carro, Casa, Montanha, Árvore, Computador"
+- E assim por diante...
 
 ### Sistema de Pontuação
 - **Itens Corretos**: +1 ponto para cada item da sequência repetido corretamente
@@ -34,7 +44,7 @@ O objetivo é acumular o maior número de pontos através da memorização e rep
 - **Bônus de Conclusão**: +20 pontos para todos os jogadores ativos que completarem uma sequência de 21 itens
 
 ### Eliminação
-- Um jogador é eliminado quando erra qualquer item da sequência
+- Um jogador é eliminado da rodada quando erra qualquer item da sequência
 - O jogo continua enquanto houver pelo menos 2 jogadores ativos
 - A partida termina quando a sequência atinge 21 itens ou quando apenas um jogador permanece
 
@@ -46,7 +56,7 @@ O jogador com mais pontos ao final da partida é declarado vencedor. Empates sã
 1. Execute o jogo e selecione a opção "JOGAR" no menu inicial
 2. Insira o número de jogadores (2-4) e seus respectivos nomes
 3. O primeiro jogador digita uma palavra ou número para iniciar a sequência
-4. Os jogadores se alternam, repetindo a sequência e adicionando novos itens
+4. Os jogadores seguintes repetem toda a sequência anterior e adicionam um novo item
 5. A tela é limpa entre as jogadas para aumentar o desafio de memorização
 6. O jogo continua até que reste apenas um jogador ou a sequência atinja 21 itens
 7. Ao final, o jogador com mais pontos é declarado vencedor
@@ -71,12 +81,12 @@ O jogador com mais pontos ao final da partida é declarado vencedor. Empates sã
 
 3. Compile o código-fonte:
    ```bash
-   javac jogo.java
+   javac Jogo.java
    ```
 
 4. Execute o jogo:
    ```bash
-   java Main
+   java Jogo
    ```
 
 ## 📝 Dicas para uma Melhor Experiência
